@@ -3,3 +3,6 @@
 
 # Backup do arquivo original (contém credenciais antigas)
 AdvBoard_Ultima atualização 20.05.2026.html
+
+# Arquivo de provisionamento local (credenciais — nunca versionar)
+js/credentials.js

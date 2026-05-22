@@ -103,14 +103,9 @@ async function _provisionarUsuariosFirebase() {
     const flagSnap = await window._firestoreGetDoc(flagRef);
     if (flagSnap.exists()) return; // Já provisionado
 
-    // Lista de usuários a criar no Firebase Auth
-    const usersToCreate = [
-      // CREDENCIAIS REMOVIDAS - provisione usuários pelo Firebase Console
-      // CREDENCIAIS REMOVIDAS - provisione usuários pelo Firebase Console
-      // CREDENCIAIS REMOVIDAS - provisione usuários pelo Firebase Console
-      // CREDENCIAIS REMOVIDAS - provisione usuários pelo Firebase Console
-      // CREDENCIAIS REMOVIDAS - provisione usuários pelo Firebase Console
-    ];
+    // Lê credenciais do arquivo local credentials.js (não versionado no git).
+    // Se o arquivo não existir, pula a criação e usa o Firebase Console.
+    const usersToCreate = window._ADVBOARD_CREDENTIALS || [];
 
     for (const u of usersToCreate) {
       try {
