@@ -1,0 +1,486 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdvBoard – Gestão de Processos</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><img src="logo.png" alt="AdvBoard Logo" style="width:110px;height:110px;object-fit:contain;margin-bottom:12px;" /><div class="brand">Adv<span>Board</span></div><div class="sub">GESTÃO DE PROCESSOS</div></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" /></div>
+    <div class="form-group">
+      <label>Senha</label>
+      <div class="password-wrapper">
+        <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+        <button class="password-toggle" type="button" onclick="toggleSenhaVisivel('login-password', this)" tabindex="-1" title="Mostrar/ocultar senha">
+          <svg id="eye-icon-login" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="login-forgot"><a onclick="toggleForgotForm()">Esqueceu a senha?</a></div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+
+    <!-- Formulário de recuperação de senha -->
+    <div class="forgot-form" id="forgot-form">
+      <div class="forgot-title">🔑 Recuperar senha</div>
+      <div class="forgot-desc">Insira seu e-mail e enviaremos um link para redefinir sua senha.</div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="forgot-email" placeholder="seu@email.com" />
+      </div>
+      <button class="btn-login" type="button" onclick="doForgotPassword()" style="background:var(--bg4);color:var(--text);border:1px solid var(--border2);">Enviar link de recuperação</button>
+      <div class="forgot-msg" id="forgot-msg"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">Adv<span>Board</span></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" onclick="showPage('dashboard',this)">Dashboard</button>
+      <button class="nav-btn" onclick="showPage('kanban',this)">Fluxo</button>
+      <button class="nav-btn" onclick="showPage('processos',this)">Processos</button>
+      <button class="nav-btn" onclick="showPage('clientes',this)">Clientes</button>
+      <button class="nav-btn" onclick="showPage('agenda',this)">Agenda</button>
+      <button class="nav-btn" onclick="showPage('relatorios',this)">Relatórios</button>
+      <button class="nav-btn" id="nav-publicacoes" onclick="showPage('publicacoes',this)">📋 Publicações</button>
+      <button class="nav-btn" id="nav-admin" onclick="showPage('admin',this)">Admin</button>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" onclick="toggleNotif()">🔔<div class="notif-badge" id="notif-count">0</div></div>
+      <span id="sync-status-indicator" style="font-size:11px;color:var(--text3);white-space:nowrap;">☁️ Conectando...</span>
+      <div class="user-chip" id="user-chip-wrap">
+        <div class="user-chip-inner" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="top-avatar" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;overflow:hidden;">U</div>
+          <span class="user-name" id="top-name">Usuário</span>
+          <svg style="width:12px;height:12px;color:var(--text3);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-avatar" id="dropdown-avatar-wrap">U</div>
+            <div class="user-dropdown-name" id="dropdown-name">Usuário</div>
+            <div class="user-dropdown-role" id="dropdown-role">—</div>
+          </div>
+          <div class="user-dropdown-menu">
+            <button class="user-dropdown-item" onclick="closeUserMenu(); openDadosPessoais();">
+              <span class="item-icon">👤</span> Dados Pessoais
+            </button>
+            <button class="user-dropdown-item" onclick="closeUserMenu(); openAlterarSenha();">
+              <span class="item-icon">🔒</span> Alterar Senha
+            </button>
+            <div class="user-dropdown-separator"></div>
+            <button class="user-dropdown-item danger" onclick="closeUserMenu(); doLogout();">
+              <span class="item-icon">🚪</span> Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notif-panel" id="notif-panel" style="position:fixed;top:56px;right:0;width:360px;background:var(--bg2);border-left:1px solid var(--border2);z-index:150;display:none;flex-direction:column;"><div class="notif-panel-header" style="padding:16px;border-bottom:1px solid var(--border);"><h3>Notificações</h3><button class="modal-close" onclick="toggleNotif()">×</button></div><div class="notif-list" id="notif-list" style="padding:8px;"></div></div>
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div class="page-title" style="font-size:20px;font-weight:600;">Visão Geral</div><button class="btn btn-primary" onclick="openNewProcess()">+ Novo Processo</button></div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="table-wrap"><div class="table-toolbar">⚡ Ações Pendentes Urgentes</div><div id="urgent-list" style="padding:8px;"></div></div>
+        <div class="table-wrap"><div class="table-toolbar">📅 Audiências Esta Semana</div><div id="audiencias-list" style="padding:8px;"></div></div>
+      </div>
+    </div>
+    <!-- KANBAN -->
+    <div class="page" id="page-kanban">
+      <div class="kanban-header"><div class="kanban-title">Fluxo Processual</div><div style="display:flex; gap:12px;"><div class="kanban-filters"><button class="filter-btn active" onclick="filterKanban('todos',this)">Todos</button><button class="filter-btn" onclick="filterKanban('meus',this)">Meus processos</button><button class="filter-btn" onclick="filterKanban('urgente',this)">Urgentes</button></div><button class="btn btn-primary" onclick="openNewProcess()">+ Novo Processo</button></div></div>
+      <div class="kanban-board" id="kanban-board"></div>
+    </div>
+    <!-- PROCESSOS -->
+    <div class="page" id="page-processos">
+      <div class="page-header" style="display:flex;justify-content:space-between;margin-bottom:20px;"><div class="page-title">Processos</div><button class="btn btn-primary" onclick="openNewProcess()">+ Novo Processo</button></div>
+      <div class="table-wrap"><div class="table-toolbar"><input class="search-input" id="searchProcesso" placeholder="Buscar cliente, processo..." oninput="filterTableDebounced()" /><select id="statusProcesso" onchange="filterByStatus(this.value)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:8px 12px;"><option value="">Todos status</option><option>Triagem</option><option>Análise Jurídica</option><option>Cálculo Trabalhista</option><option>Elaboração de Petição</option><option>Peticionado</option><option>Audiência Agendada</option><option>Acordo / Sentença</option><option>Execução</option></select></div><div style="overflow-x:auto;">\n<table>\n<thead>\n<th>Cliente</th><th>Processo</th><th>Status</th><th>Responsável</th><th>Valor Causa</th><th>Ações</th>\n</thead><tbody id="proc-table-body"></tbody>\n</table></div><div class="pagination" id="proc-pagination"></div></div>
+    </div>
+    <!-- CLIENTES -->
+    <div class="page" id="page-clientes">
+      <div class="page-header" style="display:flex;justify-content:space-between;margin-bottom:20px;"><div class="page-title">Clientes</div><button class="btn btn-primary" onclick="openNewCliente()">+ Novo Cliente</button></div>
+      <div class="table-wrap"><div class="table-toolbar"><input class="search-input" id="searchCliente" placeholder="Buscar cliente..." oninput="filterClientesDebounced()" /></div><div style="overflow-x:auto;">\n<table>\n<thead>\n<th>Nome</th><th>CPF / CNPJ</th><th>Contato</th><th>Processos</th><th>Ações</th>\n</thead>\n<tbody id="clientes-table-body"></tbody>\n</table></div><div class="pagination" id="cliente-pagination"></div></div>
+    </div>
+    <!-- AGENDA -->
+    <div class="page" id="page-agenda">
+      <div class="agenda-header-bar" style="margin-bottom:16px;"><button class="btn btn-primary" onclick="exportarICS()" style="margin-left:auto;">📅 Exportar ICS</button><button class="btn btn-secondary" onclick="syncGoogleCalendar()">📅 Sincronizar Google Agenda</button></div>
+      <div class="agenda-container">
+        <div class="agenda-calendar-side"><div class="calendar-nav" style="margin-bottom:16px;"><button class="nav-btn" onclick="agendaChangeMonth(-1)">‹</button><div class="current-month" id="currentMonthLabel"></div><button class="nav-btn" onclick="agendaChangeMonth(1)">›</button><button class="today-btn btn-secondary" onclick="agendaGoToday()">Hoje</button></div><div class="calendar-grid"><div class="weekdays"><div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div></div><div class="calendar-days" id="calendarDays"></div></div></div>
+        <div class="agenda-events-side"><div class="events-panel"><div class="events-header"><h3>Eventos do dia</h3><button class="add-event-btn" onclick="agendaOpenEventModal()">+ Novo Evento</button><button class="btn-secondary btn-sm" id="toggleConcluidosBtn" onclick="toggleExibirConcluidos()" style="font-size: 11px;">📋 Ver concluídos</button></div><div class="events-list" id="eventsList"></div></div></div>
+      </div>
+    </div>
+    <!-- RELATÓRIOS -->
+    <div class="page" id="page-relatorios">
+      <div class="page-header"><div class="page-title">Relatórios</div></div>
+      <div class="report-cards-grid" id="report-cards"></div>
+      <div class="report-filter-bar" id="report-filter-bar" style="display:none;"><div class="filter-tag" id="active-filter-tag"></div><button class="btn btn-secondary" onclick="clearRelatorioFilter()">Limpar filtro</button></div>
+      <div class="table-wrap"><div class="table-toolbar">📊 Distribuição por Etapa</div><div style="padding:20px;" id="report-stages-list"></div></div>
+    </div>
+    <!-- PUBLICAÇÕES / DATAJUD -->
+    <div class="page" id="page-publicacoes">
+      <div class="pub-header">
+        <div>
+          <div class="pub-title">📋 Publicações — DataJud / CNJ</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;">Acompanhe todas as movimentações dos seus processos via API pública do CNJ</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="auto-sync-badge" id="auto-sync-indicator">⏰ Sincronização agendada</span>
+          <button class="btn btn-secondary" onclick="pubMarcarTodasLidas()">✓ Marcar todas como lidas</button>
+          <button class="btn btn-primary" onclick="pubBuscarPublicacoes()">🔄 Atualizar</button>
+        </div>
+      </div>
+
+      <div class="pub-oab-config">
+        <div class="pub-oab-title">⚙️ OABs Monitoradas</div>
+        <div class="pub-oab-sub" id="pub-oab-sub-info">Configure suas OABs em Admin → OABs / DataJud para monitorar publicações automaticamente.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+          <div class="form-group" style="margin:0;flex:1;min-width:150px;">
+            <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Período de Busca</label>
+            <select id="pub-periodo">
+              <option value="7">7 dias</option>
+              <option value="15">15 dias</option>
+              <option value="30" selected>30 dias</option>
+              <option value="60">60 dias</option>
+              <option value="90">90 dias</option>
+            </select>
+          </div>
+          <div style="flex:0;display:flex;gap:8px;align-items:flex-end;padding-bottom:0;flex-wrap:wrap;">
+            <div>
+              <label style="font-size:11px;color:transparent;display:block;margin-bottom:6px;">.</label>
+              <button class="btn btn-primary" onclick="pubBuscarPublicacoes()" style="white-space:nowrap;padding:9px 16px;">🔍 Buscar Publicações</button>
+            </div>
+            <div>
+              <label style="font-size:11px;color:transparent;display:block;margin-bottom:6px;">.</label>
+              <button class="btn btn-secondary" onclick="showPage('admin',null);setTimeout(()=>{document.querySelector('[data-tab=oab]').click()},150);" style="white-space:nowrap;padding:9px 16px;">⚙️ Gerenciar OABs</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-stats-row" id="pub-stats-row">
+        <div class="pub-stat"><div class="pub-stat-label">Total Publicações</div><div class="pub-stat-value" id="pub-stat-total">—</div><div class="pub-stat-sub">no período</div></div>
+        <div class="pub-stat"><div class="pub-stat-label">✨ Novas</div><div class="pub-stat-value" id="pub-stat-novas" style="color:var(--accent);">—</div><div class="pub-stat-sub">desde última visita</div></div>
+        <div class="pub-stat"><div class="pub-stat-label">Não Lidas</div><div class="pub-stat-value" id="pub-stat-nao-lidas" style="color:var(--blue);">—</div><div class="pub-stat-sub">aguardando leitura</div></div>
+        <div class="pub-stat"><div class="pub-stat-label">Urgentes</div><div class="pub-stat-value" id="pub-stat-urgentes" style="color:var(--red);">—</div><div class="pub-stat-sub">despachos / audiências</div></div>
+        <div class="pub-stat"><div class="pub-stat-label">Processos</div><div class="pub-stat-value" id="pub-stat-procs" style="color:var(--green);">—</div><div class="pub-stat-sub">com movimentação</div></div>
+      </div>
+
+      <div class="pub-filters">
+        <span style="font-size:12px;color:var(--text3);">Filtrar:</span>
+        <button class="pub-filter-btn active" onclick="pubFiltrar('todos',this)">Todas</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('nova',this)">✨ Novas</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('nao_lida',this)">Não lidas</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('urgente',this)">Urgentes</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('despacho',this)">Despachos</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('decisao',this)">Decisões</button>
+        <button class="pub-filter-btn" onclick="pubFiltrar('audiencia',this)">Audiências</button>
+        <input class="search-input" id="pub-search" placeholder="Buscar por processo ou cliente..." oninput="pubFiltrarBusca()" style="max-width:280px;margin-left:auto;" />
+      </div>
+
+      <div id="pub-container">
+        <div class="pub-empty">
+          <div class="pub-empty-icon">📋</div>
+          <div class="pub-empty-title">Configure sua OAB e busque publicações</div>
+          <div class="pub-empty-sub">Informe seu número OAB e clique em "Buscar" para consultar o DataJud do CNJ</div>
+        </div>
+      </div>
+
+      <div class="pub-pagination" id="pub-pagination" style="display:none;">
+        <div class="pub-pagination-info" id="pub-pag-info"></div>
+        <div class="pub-pagination-btns">
+          <button onclick="pubChangePage(-1)" id="pub-btn-prev">← Anterior</button>
+          <button onclick="pubChangePage(1)" id="pub-btn-next">Próxima →</button>
+        </div>
+      </div>
+
+      <div class="pub-api-info">
+        ℹ️ Este módulo utiliza a <strong>API pública DataJud do CNJ</strong> (datajud.cnj.jus.br). Os dados são consultados em tempo real.
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="page" id="page-admin">
+      <div class="page-header"><div class="page-title">Administração</div></div>
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-tab="users">👥 Usuários</div>
+        <div class="admin-tab" data-tab="setores">🏷️ Setores</div>
+        <div class="admin-tab" data-tab="permissoes">🔒 Permissões</div>
+        <div class="admin-tab" data-tab="oab">📋 OABs / DataJud</div>
+      </div>
+      <div id="admin-users-panel" class="admin-panel active"><div style="margin-bottom:16px;text-align:right;"><button class="btn btn-primary" onclick="openNewUserModal()">+ Novo Usuário</button></div><div class="table-wrap"><div class="table-toolbar">Lista de Usuários</div><div style="overflow-x:auto;">\n<table>\n<thead>\n<th>Nome</th><th>Login</th><th>Setor</th><th>Permissões</th><th>Ações</th>\n</thead>\n<tbody id="admin-users-tbody"></tbody>\n</table></div></div></div>
+      <div id="admin-setores-panel" class="admin-panel" style="display:none;"><div style="margin-bottom:16px;text-align:right;"><button class="btn btn-primary" onclick="openNewSetorModal()">+ Novo Setor</button></div><div class="table-wrap"><div class="table-toolbar">Lista de Setores</div><div style="overflow-x:auto;">\n<table>\n<thead>\n<th>Setor</th><th>Permissões</th><th>Ações</th>\n</thead>\n<tbody id="admin-setores-tbody"></tbody>\n</table></div></div></div>
+      <div id="admin-permissoes-panel" class="admin-panel" style="display:none;"><div class="table-wrap"><div class="table-toolbar">Gerenciar Permissões</div><div style="padding:20px;"><div class="form-row"><div><label>Selecione o Setor</label><select id="perm-setor-select" class="search-input" onchange="carregarPermissoesDoSetor()"></select></div></div><div class="permission-list" id="permissoes-checkboxes"></div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="salvarPermissoesSetor()">Salvar Permissões</button></div></div></div></div>
+
+      <div id="admin-oab-panel" class="admin-panel" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;" class="oab-admin-grid">
+          <div class="table-wrap">
+            <div class="table-toolbar" style="justify-content:space-between;">
+              <span>📋 OABs Vinculadas</span>
+              <button class="btn btn-primary btn-sm" onclick="adminOabOpenModal()">+ Adicionar OAB</button>
+            </div>
+            <div style="padding:16px;" id="admin-oab-list">
+              <div style="text-align:center;color:var(--text3);padding:24px;">Nenhuma OAB cadastrada</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <div class="table-toolbar">⏰ Sincronização Automática</div>
+            <div style="padding:20px;">
+              <div style="margin-bottom:16px;">
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:8px;">Horário da Atualização Diária</label>
+                <input type="time" id="admin-pub-horario" value="08:00" onchange="adminSalvarConfigPub()" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:9px 12px;" />
+              </div>
+              <div style="margin-bottom:20px;">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                  <input type="checkbox" id="admin-pub-notif-urgentes" checked onchange="adminSalvarConfigPub()" />
+                  <span>Notificar publicações urgentes</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:8px;">
+                  <input type="checkbox" id="admin-pub-notif-todas" onchange="adminSalvarConfigPub()" />
+                  <span>Notificar todas as publicações</span>
+                </label>
+              </div>
+              <button class="btn btn-primary" style="width:100%;" onclick="adminForceSyncPub()">🔄 Forçar Sincronização Agora</button>
+              <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:var(--radius);font-size:12px;">
+                <div>📅 Última atualização: <span id="admin-pub-ultima-sync">Nunca</span></div>
+                <div style="margin-top:6px;">⏰ Próxima atualização: <span id="admin-pub-proxima-sync" style="color:var(--accent);">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar">📝 Log de Atividades</div>
+          <div style="padding:12px;max-height:200px;overflow-y:auto;" id="admin-pub-log">
+            <div style="text-align:center;color:var(--text3);padding:20px;">Nenhuma atividade</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modal-detail"><div class="modal"><div class="modal-header"><div class="modal-title">Detalhes do Processo</div><button class="modal-close" onclick="closeModal('modal-detail')">×</button></div><div class="modal-body" id="detail-body"></div><div class="modal-footer" id="detail-footer"></div></div></div>
+<div class="modal-overlay" id="modal-new"><div class="modal"><div class="modal-header"><div class="modal-title">Novo Processo</div><button class="modal-close" onclick="closeModal('modal-new')">×</button></div><div class="modal-body" id="new-process-body"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-new')">Cancelar</button><button class="btn btn-primary" onclick="saveNewProcess()">Salvar</button></div></div></div>
+<div class="modal-overlay" id="modal-edit-process"><div class="modal"><div class="modal-header"><div class="modal-title">Editar Processo</div><button class="modal-close" onclick="closeModal('modal-edit-process')">×</button></div><div class="modal-body" id="edit-process-body"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-edit-process')">Cancelar</button><button class="btn btn-primary" onclick="saveEditProcess()">Salvar</button></div></div></div>
+
+<!-- Modal cliente com abas e histórico -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal" style="width: 800px;">
+    <div class="modal-header">
+      <div class="modal-title">Cadastrar Cliente</div>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">×</button>
+    </div>
+    <div style="display: flex; border-bottom: 1px solid var(--border); padding: 0 20px;">
+      <button class="cliente-tab-btn active" data-tab="dados" onclick="switchClienteTab('dados')">📋 Dados</button>
+      <button class="cliente-tab-btn" data-tab="historico" onclick="switchClienteTab('historico')">📜 Histórico</button>
+    </div>
+    <div id="cliente-tab-dados" class="cliente-tab-content active" style="padding: 20px;">
+      <div class="form-row"><div><label>Nome Completo *</label><input id="cli-nome" /></div><div><label>CPF/CNPJ</label><input id="cli-cpf" /></div></div>
+      <div class="form-row"><div><label>Telefone</label><input id="cli-tel" /></div><div><label>Email</label><input id="cli-email" /></div></div>
+      <div class="form-row"><div><label>Data de Nascimento</label><input type="date" id="cli-nascimento" /></div><div><label>Endereço</label><input id="cli-end" /></div></div>
+    </div>
+    <div id="cliente-tab-historico" class="cliente-tab-content" style="padding: 20px; max-height: 400px; overflow-y: auto;">
+      <div id="cliente-historico-lista" style="font-size: 13px; color: var(--text2);">Selecione um cliente para ver o histórico.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-encaminhar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Encaminhar Etapa</div>
+      <button class="modal-close" onclick="closeModal('modal-encaminhar')">×</button>
+    </div>
+    <div class="modal-body">
+      <select id="enc-etapa" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);">
+        <option>Análise Jurídica</option>
+        <option>Cálculo Trabalhista</option>
+        <option>Elaboração de Petição</option>
+        <option>Peticionado</option>
+        <option>Audiência Agendada</option>
+        <option>Acordo / Sentença</option>
+        <option>Execução</option>
+      </select>
+      <div id="enc-data-group" style="margin-top:12px;display:none;">
+        <label style="display:block;font-size:12px;margin-bottom:4px;">Data da Audiência</label>
+        <input type="date" id="enc-data" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;" />
+      </div>
+      <div style="margin-top:12px;">
+        <label style="display:block;font-size:12px;margin-bottom:4px;">Responsável (opcional)</label>
+        <select id="enc-responsavel" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);">
+          <option value="">--- Manter atual ---</option>
+        </select>
+      </div>
+      <textarea id="enc-obs" placeholder="Observações..." style="width:100%;margin-top:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-encaminhar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmEncaminhar()">Encaminhar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-user"><div class="modal"><div class="modal-header"><div class="modal-title" id="user-modal-title">Novo Usuário</div><button class="modal-close" onclick="closeModal('modal-user')">×</button></div><div class="modal-body"><div class="form-row"><div><label>Nome de Exibição *</label><input id="user-nome" /></div><div><label>Login (usuário) *</label><input id="user-login" /></div></div><div class="form-row"><div><label>Senha *</label><input type="password" id="user-senha" /></div><div><label>Setor</label><select id="user-setor"></select></div></div><div class="form-row single"><div><label>Iniciais (avatar)</label><input id="user-iniciais" maxlength="2" placeholder="Ex: DD" /></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-user')">Cancelar</button><button class="btn btn-primary" onclick="saveUser()">Salvar</button></div></div></div>
+<div class="modal-overlay" id="modal-setor"><div class="modal"><div class="modal-header"><div class="modal-title" id="setor-modal-title">Novo Setor</div><button class="modal-close" onclick="closeModal('modal-setor')">×</button></div><div class="modal-body"><div class="form-row single"><div><label>Nome do Setor *</label><input id="setor-nome" /></div></div><div class="form-row single"><div><label>Permissões (selecione as que este setor terá acesso)</label><div id="setor-permissoes-list" class="permission-list" style="margin-top:8px;"></div></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-setor')">Cancelar</button><button class="btn btn-primary" onclick="saveSetor()">Salvar</button></div></div></div>
+<div class="modal-overlay" id="agendaEventModal"><div class="modal"><div class="modal-header"><div class="modal-title">Novo Evento</div><button class="modal-close" onclick="agendaCloseEventModal()">×</button></div><div class="modal-body" style="padding:20px;"><div class="form-row single"><div><label>Título *</label><input type="text" id="eventTitle" placeholder="Título do evento" /></div></div><div class="form-row"><div><label>Data</label><input type="date" id="eventDate" /></div><div><label>Horário</label><input type="time" id="eventTime" /></div></div><div class="form-row single"><div><label>Tipo</label><select id="eventType"><option value="audiencia">Audiência</option><option value="prazo">Prazo</option><option value="reuniao">Reunião</option><option value="outro">Outro</option></select></div></div><div class="form-row single"><div><label>Observações</label><textarea id="eventObs" rows="3" placeholder="Observações"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="agendaCloseEventModal()">Cancelar</button><button class="btn btn-primary" onclick="agendaSaveEvent()">Salvar Evento</button></div></div></div>
+<div class="modal-overlay" id="modal-pub-detail"><div class="modal" style="max-width:700px;"><div class="modal-header"><div class="modal-title">📋 Detalhes da Publicação</div><button class="modal-close" onclick="closeModal('modal-pub-detail')">×</button></div><div class="modal-body" id="pub-detail-body"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-pub-detail')">Fechar</button><button class="btn btn-primary" onclick="pubAbrirNoDataJud()">🔗 Abrir no DataJud</button></div></div></div>
+<div class="modal-overlay" id="modal-oab"><div class="modal" style="max-width:520px;"><div class="modal-header"><div class="modal-title" id="oab-modal-title">📋 Nova OAB</div><button class="modal-close" onclick="closeModal('modal-oab')">×</button></div><div class="modal-body"><div style="padding:20px 24px;"><div class="form-row"><div><label>Número OAB *</label><input id="oab-numero" placeholder="Ex: 12345" /></div><div><label>Seccional (UF) *</label><select id="oab-uf"><option value="AL">AL — Alagoas</option><option value="AM">AM — Amazonas</option><option value="BA">BA — Bahia</option><option value="CE">CE — Ceará</option><option value="DF">DF — Distrito Federal</option><option value="ES">ES — Espírito Santo</option><option value="GO">GO — Goiás</option><option value="MA">MA — Maranhão</option><option value="MG">MG — Minas Gerais</option><option value="MS">MS — Mato Grosso do Sul</option><option value="MT">MT — Mato Grosso</option><option value="PA">PA — Pará</option><option value="PB">PB — Paraíba</option><option value="PE">PE — Pernambuco</option><option value="PI">PI — Piauí</option><option value="PR">PR — Paraná</option><option value="RJ">RJ — Rio de Janeiro</option><option value="RN">RN — Rio Grande do Norte</option><option value="RO">RO — Rondônia</option><option value="RS">RS — Rio Grande do Sul</option><option value="SC">SC — Santa Catarina</option><option value="SE">SE — Sergipe</option><option value="SP">SP — São Paulo</option><option value="TO">TO — Tocantins</option></select></div></div><div class="form-row"><div><label>Nome / Descrição *</label><input id="oab-nome" placeholder="Ex: Dra. Drielle Porto" /></div><div><label>Tribunal Padrão</label><select id="oab-tribunal"><option value="trt19">TRT-19 (AL)</option><option value="trt6">TRT-6 (PE)</option><option value="trt5">TRT-5 (BA)</option><option value="tst">TST</option><option value="tjal">TJAL</option><option value="trf5">TRF-5</option><option value="">Todos</option></select></div></div><div class="form-row single"><div><label>Ativo</label><select id="oab-ativo"><option value="1">Sim — monitorar automaticamente</option><option value="0">Não — desativado</option></select></div></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-oab')">Cancelar</button><button class="btn btn-primary" onclick="adminSalvarOab()">Salvar OAB</button></div></div></div>
+
+<!-- Modal para descrever conclusão -->
+<div class="modal-overlay" id="modal-concluir-evento">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title">✓ Concluir Agendamento</div>
+      <button class="modal-close" onclick="closeModal('modal-concluir-evento')">×</button>
+    </div>
+    <div class="modal-body" style="padding: 20px;">
+      <div class="form-row single">
+        <label>Motivo da conclusão / observações:</label>
+        <textarea id="descricao-conclusao" rows="4" style="width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text); padding:8px;" placeholder="Descreva o motivo da conclusão (ex: acordo realizado, audiência convertida, etc.)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-concluir-evento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarConclusaoComDescricao()">Salvar e Concluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     Modal: Dados Pessoais
+===================================================== -->
+<div class="modal-overlay" id="modal-dados-pessoais">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">👤 Dados Pessoais</div>
+      <button class="modal-close" onclick="closeModal('modal-dados-pessoais')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Foto de perfil -->
+      <div class="profile-photo-section">
+        <div class="profile-photo-preview" id="profile-photo-preview">
+          <span id="profile-photo-initials">U</span>
+        </div>
+        <label class="profile-photo-label" for="profile-photo-input">📷 Alterar foto</label>
+        <input type="file" id="profile-photo-input" accept="image/*" onchange="previewProfilePhoto(this)">
+      </div>
+
+      <div class="form-row">
+        <div style="flex:1;">
+          <label>Nome de exibição</label>
+          <input id="perfil-nome" class="search-input" style="width:100%;margin-top:6px;" placeholder="Seu nome" />
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px;">
+        <div style="flex:1;">
+          <label style="font-size:12px;color:var(--text2);">E-mail</label>
+          <input id="perfil-email" class="search-input" style="width:100%;margin-top:6px;opacity:0.6;" disabled />
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px;">
+        <div style="flex:1;">
+          <label style="font-size:12px;color:var(--text2);">Iniciais (avatar)</label>
+          <input id="perfil-iniciais" class="search-input" style="width:100%;margin-top:6px;" placeholder="Ex: RP" maxlength="3" />
+        </div>
+        <div style="flex:1;">
+          <label style="font-size:12px;color:var(--text2);">Cor do avatar</label>
+          <input type="color" id="perfil-cor" style="width:100%;height:38px;margin-top:6px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);cursor:pointer;" value="#6c7bff" />
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-dados-pessoais')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDadosPessoais()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     Modal: Alterar Senha
+===================================================== -->
+<div class="modal-overlay" id="modal-alterar-senha">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">🔒 Alterar Senha</div>
+      <button class="modal-close" onclick="closeModal('modal-alterar-senha')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group" style="margin-bottom:16px;">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">Senha atual</label>
+        <div class="password-wrapper">
+          <input type="password" id="senha-atual" class="search-input" style="width:100%;padding-right:42px;" placeholder="••••••••" />
+          <button class="password-toggle" type="button" onclick="toggleSenhaVisivel('senha-atual', this)" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:6px;">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">Nova senha</label>
+        <div class="password-wrapper">
+          <input type="password" id="senha-nova" class="search-input" style="width:100%;padding-right:42px;" placeholder="••••••••" oninput="checkPasswordStrength(this.value)" />
+          <button class="password-toggle" type="button" onclick="toggleSenhaVisivel('senha-nova', this)" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+        <div class="password-strength"><div class="password-strength-bar" id="strength-bar"></div></div>
+        <div class="password-strength-label" id="strength-label"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px;">Confirmar nova senha</label>
+        <div class="password-wrapper">
+          <input type="password" id="senha-confirmar" class="search-input" style="width:100%;padding-right:42px;" placeholder="••••••••" />
+          <button class="password-toggle" type="button" onclick="toggleSenhaVisivel('senha-confirmar', this)" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-alterar-senha')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-senha" onclick="saveAlterarSenha()">Salvar senha</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK (módulo) -->
+<script type="module" src="js/firebase-init.js"></script>
+
+<!-- Módulos da aplicação (ordem de dependência) -->
+<script src="js/state.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/kanban.js"></script>
+<script src="js/processos.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/relatorios.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/publicacoes.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
