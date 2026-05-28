@@ -1,4 +1,4 @@
-﻿  :root {
+  :root {
     --bg: #0f1117;
     --bg2: #161820;
     --bg3: #1e2030;
@@ -261,6 +261,7 @@
   .pub-card.nao-lida { border-left-color:var(--accent); }
   .pub-card.urgente { border-left-color:var(--red); }
   .pub-card.lida { border-left-color:var(--text3); opacity:0.7; }
+  .pub-card.modificada { border-left-color:#f59e0b; }
   .pub-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px; }
   .pub-card-proc { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:500; }
   .pub-card-date { font-size:11px; color:var(--text3); white-space:nowrap; }
@@ -273,6 +274,9 @@
   .pub-badge-lido { background:rgba(85,90,112,0.15); color:var(--text3); border:1px solid rgba(85,90,112,0.3); }
   .pub-badge-tipo { background:rgba(20,184,166,0.12); color:#2dd4bf; border:1px solid rgba(20,184,166,0.25); }
   .pub-badge-tribunal { background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.25); }
+  .pub-badge-modificada { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
+  .pub-badge-count { display:inline-block;background:var(--accent);color:#fff;border-radius:10px;padding:0 5px;font-size:10px;margin-left:4px;vertical-align:middle; }
+  .nav-badge { display:inline-block;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px;margin-left:4px;vertical-align:middle;font-weight:700; }
   .pub-empty { text-align:center; padding:60px 20px; color:var(--text3); background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); }
   .pub-empty-icon { font-size:48px; margin-bottom:16px; }
   .pub-empty-title { font-size:16px; font-weight:500; color:var(--text2); margin-bottom:8px; }
