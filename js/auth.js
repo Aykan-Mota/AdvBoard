@@ -1,4 +1,4 @@
-﻿async function initSystem() {
+async function initSystem() {
   // Mostra tela de carregamento enquanto busca dados do Firebase
   const loginEl = document.getElementById('login-screen');
   if (loginEl) {
