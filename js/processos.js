@@ -1,4 +1,4 @@
-﻿function filterTableDebounced() { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => { tableSearch = document.getElementById('searchProcesso').value; procCurrentPage = 1; renderTable(); }, 300); }
+function filterTableDebounced() { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => { tableSearch = document.getElementById('searchProcesso').value; procCurrentPage = 1; renderTable(); }, 300); }
 function filterByStatus(v) { tableStatus = v; procCurrentPage = 1; renderTable(); }
 
 function renderTable() {
