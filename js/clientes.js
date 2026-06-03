@@ -1,4 +1,4 @@
-﻿// ========== LOG DE CLIENTE ==========
+// ========== LOG DE CLIENTE ==========
 function adicionarLogCliente(clienteId, acao, usuario) {
   const cliente = clientes.find(c => c.id === clienteId);
   if (!cliente) return;
