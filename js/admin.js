@@ -1,4 +1,4 @@
-﻿function renderAdminUsers() {
+function renderAdminUsers() {
   const tbody = document.getElementById('admin-users-tbody'); if(!tbody) return;
   tbody.innerHTML = usuarios.map(u => { const setor = setores.find(s => s.id === u.setorId); const permissoes = setor ? setor.permissoes.join(', ') : 'Nenhuma'; return `<tr><td style="font-weight:500;">${u.nomeExibicao || u.nome}</td><td>${u.nome}</td><td>${setor?.nome || '—'}</td><td><span class="tag tag-blue">${permissoes}</span></td><td><button class="btn btn-secondary btn-sm" onclick="editUser(${u.id})">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Excluir</button></td></tr>`; }).join('');
 }
