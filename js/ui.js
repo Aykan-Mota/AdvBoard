@@ -1,4 +1,4 @@
-﻿function showPage(id, btn) {
+function showPage(id, btn) {
   if(!hasPermission(id)) { alert('Acesso negado para seu perfil'); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
