@@ -1,4 +1,4 @@
-﻿function syncCalendarFromProcesses() {
+function syncCalendarFromProcesses() {
   calendarEvents = [];
   processos.forEach(p => {
     if (p.stage === 'Audiência Agendada' && p.dataProx) {
