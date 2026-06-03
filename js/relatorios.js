@@ -1,4 +1,4 @@
-﻿function filterRelatorioByResp(resp) { relatorioFilterResp = resp; renderReports(); document.getElementById('report-filter-bar').style.display = 'flex'; document.getElementById('active-filter-tag').innerHTML = `📌 Filtrando por: ${resp} <button onclick="clearRelatorioFilter()">✕</button>`; }
+function filterRelatorioByResp(resp) { relatorioFilterResp = resp; renderReports(); document.getElementById('report-filter-bar').style.display = 'flex'; document.getElementById('active-filter-tag').innerHTML = `📌 Filtrando por: ${resp} <button onclick="clearRelatorioFilter()">✕</button>`; }
 function clearRelatorioFilter() { relatorioFilterResp = null; renderReports(); document.getElementById('report-filter-bar').style.display = 'none'; }
 
 function renderReports() {
