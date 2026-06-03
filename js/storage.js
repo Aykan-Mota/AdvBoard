@@ -1,4 +1,4 @@
-﻿// Cache local para fallback caso Firebase não esteja disponível
+// Cache local para fallback caso Firebase não esteja disponível
 function _localSave(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
 function _localLoad(key, def) { try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : def; } catch(e) { return def; } }
 
