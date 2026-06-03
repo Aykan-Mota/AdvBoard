@@ -1,4 +1,4 @@
-﻿function renderKanban() {
+function renderKanban() {
   const stagesOrder = ['Triagem','Análise Jurídica','Cálculo Trabalhista','Elaboração de Petição','Peticionado','Audiência Agendada','Acordo / Sentença','Execução'];
   let procs = [...processos];
   if (kanbanFilter === 'meus') procs = procs.filter(p=>p.resp === (currentUser.nomeExibicao||currentUser.nome));
