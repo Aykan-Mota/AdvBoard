@@ -1,4 +1,4 @@
-﻿// ========== DADOS COM LOCALSTORAGE ==========
+// ========== DADOS COM LOCALSTORAGE ==========
 let processos = [];
 let clientes = [];
 let usuarios = [];
