@@ -1,4 +1,4 @@
-﻿function renderDashboard() {
+function renderDashboard() {
   const total = processos.length;
   const urgentes = processos.filter(p=>p.priority==='urgent').length;
   const emAndamento = processos.filter(p=>['Triagem','Análise Jurídica','Cálculo Trabalhista','Elaboração de Petição'].includes(p.stage)).length;
